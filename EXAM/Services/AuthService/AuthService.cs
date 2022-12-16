@@ -1,12 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Configuration;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System.Configuration;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using EXAM.Services.AuthService;
 using EXAM.Data;
+using EXAM.DTOs.AuthUser;
 using EXAM.Models;
-//using AutoMapper;
+using AutoMapper;
+
 
 
 namespace EXAM.Services.AuthService
@@ -15,15 +18,15 @@ namespace EXAM.Services.AuthService
     {
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
-        //private readonly IMapper _mapper;
+        private readonly IMapper _mapper;
 
-        //public AuthService(DataContext context, IConfiguration configuration, IMapper mapper)
-        //{
-        //    _context = context;
-        //    _configuration = configuration;
-        //    _mapper = mapper;
+        public AuthService(DataContext context, IConfiguration configuration, IMapper mapper)
+        {
+            _context = context;
+            _configuration = configuration;
+            _mapper = mapper;
 
-        //}
+        }
 
         public IConfiguration Configuration { get; }
 
@@ -73,39 +76,39 @@ namespace EXAM.Services.AuthService
 
             return response;
         }
-  
-        //public async Task<ServiceResponse<GetUserDto>> UpdateUser(User user, string password, Guid id)
-        //{
-        //    ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
 
-        //    try
-        //    {
-        //        if (await UserIdExist(id))
-        //        {
-        //            CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+        public async Task<ServiceResponse<GetUserDto>> UpdateUser(User user, string password, Guid id)
+        {
+            ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
 
-        //            user.PasswordHash = passwordHash;
-        //            user.PasswordSalt = passwordSalt;
-        //            user.IdUser = id;
+            try
+            {
+                if (await UserIdExist(id))
+                {
+                    CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
 
-        //            _context.Entry(user).State = EntityState.Modified;
+                    user.PasswordHash = passwordHash;
+                    user.PasswordSalt = passwordSalt;
+                    user.IdUser = id;
 
-        //            //await _context.SaveChangesAsync();
-        //            //response.Data = _mapper.Map<GetUserDto>(user);
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "USER NOT FOUND";
-        //        }
-        //    }
-        //    catch (DbUpdateException ex)
-        //    {
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
-        //    return response;
-        //}
+                    _context.Entry(user).State = EntityState.Modified;
+
+                    await _context.SaveChangesAsync();
+                    response.Data = _mapper.Map<GetUserDto>(user);
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "USER NOT FOUND";
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            return response;
+        }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {

@@ -1,12 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EXAM.Data;
 using EXAM.Models;
+using EXAM.DTOs.Role;
+using EXAM.DTOs.Category;
+using AutoMapper;
+
 
 namespace EXAM.Controllers
 {
@@ -14,145 +18,145 @@ namespace EXAM.Controllers
     [ApiController]
     public class RolesController : ControllerBase
     {
-        //private readonly DataContext _context;
-        //private readonly IMapper _mapper;
+        private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        //public RolesController(DataContext context, IMapper mapper)
-        //{
-        //    _context = context;
-        //    _mapper = mapper;
-        //}
+        public RolesController(DataContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
 
-        //// GET: api/Roles
-        //[HttpGet]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetRoleDto>>>> GetRole()
-        //{
-        //    var response = new ServiceResponse<IEnumerable<GetRoleDto>>();
+        // GET: api/Roles
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetRoleDto>>>> GetRole()
+        {
+            var response = new ServiceResponse<IEnumerable<GetRoleDto>>();
 
-        //    var role = await _context.Category.ToListAsync();
+            var role = await _context.Category.ToListAsync();
 
-        //    response.Data = role.Select(c => _mapper.Map<GetRoleDto>(c)).ToList();
+            response.Data = role.Select(c => _mapper.Map<GetRoleDto>(c)).ToList();
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// GET: api/Roles/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetRoleDto>>> GetRole(Guid id)
-        //{
-        //    var response = new ServiceResponse<GetRoleDto>();
-        //    var role = await _context.Role.FirstOrDefaultAsync(c => c.IdRole.ToString().ToUpper() == id.ToString().ToUpper());
+        // GET: api/Roles/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetRoleDto>>> GetRole(Guid id)
+        {
+            var response = new ServiceResponse<GetRoleDto>();
+            var role = await _context.Role.FirstOrDefaultAsync(c => c.IdRole.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //    if (role != null)
-        //    {
-        //        response.Data = _mapper.Map<GetRoleDto>(role);
-        //    }
-        //    else
-        //    {
-        //        response.Success = false;
-        //        response.Message = "ROLE NOT FOUND";
+            if (role != null)
+            {
+                response.Data = _mapper.Map<GetRoleDto>(role);
+            }
+            else
+            {
+                response.Success = false;
+                response.Message = "ROLE NOT FOUND";
 
-        //        return NotFound(response);
-        //    }
+                return NotFound(response);
+            }
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// PUT: api/Roles/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetRoleDto>>> PutRole(UpdateRoleDto updatedRole, Guid id)
-        //{
-        //    ServiceResponse<GetRoleDto> response = new ServiceResponse<GetRoleDto>();
-        //    try
-        //    {
-        //        var role = await _context.Role.FindAsync(id);
+        // PUT: api/Roles/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetRoleDto>>> PutRole(UpdateRoleDto updatedRole, Guid id)
+        {
+            ServiceResponse<GetRoleDto> response = new ServiceResponse<GetRoleDto>();
+            try
+            {
+                var role = await _context.Role.FindAsync(id);
 
-        //        if (RoleExists(id))
-        //        {
-        //            _mapper.Map(updatedRole, role);
+                if (RoleExists(id))
+                {
+                    _mapper.Map(updatedRole, role);
 
-        //            await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
 
-        //            response.Data = _mapper.Map<GetRoleDto>(role);
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "ROLE NOT FOUND";
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
+                    response.Data = _mapper.Map<GetRoleDto>(role);
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "ROLE NOT FOUND";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
 
-        //    if (response.Data == null)
-        //    {
-        //        return NotFound(response);
-        //    }
+            if (response.Data == null)
+            {
+                return NotFound(response);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
-        //// POST: api/Roles
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ServiceResponse<IEnumerable<GetRoleDto>>> PostRole(AddRoleDto role)
-        //{
-        //    var response = new ServiceResponse<IEnumerable<GetRoleDto>>();
+        // POST: api/Roles
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ServiceResponse<IEnumerable<GetRoleDto>>> PostRole(AddRoleDto role)
+        {
+            var response = new ServiceResponse<IEnumerable<GetRoleDto>>();
 
-        //    Role rol = _mapper.Map<Role>(role);
+            Role rol = _mapper.Map<Role>(role);
 
-        //    _context.Role.Add(rol);
+            _context.Role.Add(rol);
 
-        //    await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-        //    response.Data = await _context.Role.Select(c => _mapper.Map<GetRoleDto>(c)).ToListAsync();
+            response.Data = await _context.Role.Select(c => _mapper.Map<GetRoleDto>(c)).ToListAsync();
 
-        //    return response;
+            return response;
 
-        //}
+        }
 
-        //// DELETE: api/Roles/5
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetRoleDto>>>> DeleteRole(Guid id)
-        //{
-        //    ServiceResponse<IEnumerable<GetRoleDto>> response = new ServiceResponse<IEnumerable<GetRoleDto>>();
+        // DELETE: api/Roles/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetRoleDto>>>> DeleteRole(Guid id)
+        {
+            ServiceResponse<IEnumerable<GetRoleDto>> response = new ServiceResponse<IEnumerable<GetRoleDto>>();
 
-        //    try
-        //    {
-        //        Role rol = await _context.Role.FirstOrDefaultAsync(c => c.IdRole.ToString().ToUpper() == id.ToString().ToUpper());
+            try
+            {
+                Role rol = await _context.Role.FirstOrDefaultAsync(c => c.IdRole.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //        if (rol != null)
-        //        {
-        //            _context.Role.Remove(rol);
-        //            await _context.SaveChangesAsync();
+                if (rol != null)
+                {
+                    _context.Role.Remove(rol);
+                    await _context.SaveChangesAsync();
 
-        //            response.Data = _context.Role.Select(c => _mapper.Map<GetRoleDto>(c)).ToList();
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "ROLE NOT FOUND";
+                    response.Data = _context.Role.Select(c => _mapper.Map<GetRoleDto>(c)).ToList();
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "ROLE NOT FOUND";
 
-        //            return NotFound(response);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
+                    return NotFound(response);
+                }
+            }
+            catch (Exception ex)
+            {
 
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
+                response.Success = false;
+                response.Message = ex.Message;
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
-        //private bool RoleExists(Guid id)
-        //{
-        //    return _context.Role.Any(e => e.IdRole == id);
-        //}
+        private bool RoleExists(Guid id)
+        {
+            return _context.Role.Any(e => e.IdRole == id);
+        }
     }
 }

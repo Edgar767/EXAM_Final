@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EXAM.Data;
+using EXAM.DTOs.Category;
 using EXAM.Models;
+using AutoMapper;
+//using Azure;
 
 namespace EXAMNTTDATA.Controllers
 {
@@ -14,144 +17,144 @@ namespace EXAMNTTDATA.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        //private readonly DataContext _context;
-        //private readonly IMapper _mapper;
+        private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        //public CategoriesController(DataContext context, IMapper mapper)
-        //{
-        //    _context = context;
-        //    _mapper = mapper;
-        //}
+        public CategoriesController(DataContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
 
-        //// GET: api/Categories
-        //[HttpGet]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetCategoryDto>>>> GetCategory()
-        //{
-        //    var response = new ServiceResponse<IEnumerable<GetCategoryDto>>();
+        // GET: api/Categories
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetCategoryDto>>>> GetCategory()
+        {
+            var response = new ServiceResponse<IEnumerable<GetCategoryDto>>();
 
-        //    var category = await _context.Category.ToListAsync();
+            var category = await _context.Category.ToListAsync();
 
-        //    response.Data = category.Select(c => _mapper.Map<GetCategoryDto>(c)).ToList();
+            //response.Data = category.Select(c => _mapper.Map<GetCategoryDto>(c)).ToList();
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// GET: api/Categories/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetCategoryDto>>> GetCategory(Guid id)
-        //{
-        //    var response = new ServiceResponse<GetCategoryDto>();
-        //    var category = await _context.Category.FirstOrDefaultAsync(c => c.IdCategory.ToString().ToUpper() == id.ToString().ToUpper());
+        // GET: api/Categories/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetCategoryDto>>> GetCategory(Guid id)
+        {
+            var response = new ServiceResponse<GetCategoryDto>();
+            var category = await _context.Category.FirstOrDefaultAsync(c => c.IdCategory.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //    if (category != null)
-        //    {
-        //        response.Data = _mapper.Map<GetCategoryDto>(category);
-        //    }
-        //    else
-        //    {
-        //        response.Success = false;
-        //        response.Message = "CATEGORY NOT FOUND";
+            if (category != null)
+            {
+                response.Data = _mapper.Map<GetCategoryDto>(category);
+            }
+            else
+            {
+                response.Success = false;
+                response.Message = "CATEGORY NOT FOUND";
 
-        //        return NotFound(response);
-        //    }
+                return NotFound(response);
+            }
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// PUT: api/Categories/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetCategoryDto>>> PutCategory(UpdateCategoryDto category, Guid id)
-        //{
-        //    ServiceResponse<GetCategoryDto> response = new ServiceResponse<GetCategoryDto>();
-        //    try
-        //    {
-        //        var categ = await _context.Category.FindAsync(id);
+        // PUT: api/Categories/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetCategoryDto>>> PutCategory(UpdateCategoryDto category, Guid id)
+        {
+            ServiceResponse<GetCategoryDto> response = new ServiceResponse<GetCategoryDto>();
+            try
+            {
+                var categ = await _context.Category.FindAsync(id);
 
-        //        if (CategoryExist(id))
-        //        {
-        //            _mapper.Map(category, categ);
+                if (CategoryExist(id))
+                {
+                    _mapper.Map(category, categ);
 
-        //            await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
 
-        //            response.Data = _mapper.Map<GetCategoryDto>(categ);
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "CATEGORY NOT FOUND";
-        //        }
-        //    }
-        //    catch (DbUpdateException ex)
-        //    {
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
+                    response.Data = _mapper.Map<GetCategoryDto>(categ);
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "CATEGORY NOT FOUND";
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
 
-        //    if (response.Data == null)
-        //    {
-        //        return NotFound(response);
-        //    }
+            if (response.Data == null)
+            {
+                return NotFound(response);
+            }
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// POST: api/Categories
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetCategoryDto>>>> PostCategory(AddCategoryDto category)
-        //{
-        //    var response = new ServiceResponse<IEnumerable<GetCategoryDto>>();
+        // POST: api/Categories
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetCategoryDto>>>> PostCategory(AddCategoryDto category)
+        {
+            var response = new ServiceResponse<IEnumerable<GetCategoryDto>>();
 
-        //    Category catego = _mapper.Map<Category>(category);
+            Category catego = _mapper.Map<Category>(category);
 
-        //    _context.Category.Add(catego);
+            _context.Category.Add(catego);
 
-        //    await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-        //    response.Data = await _context.Category.Select(c => _mapper.Map<GetCategoryDto>(c)).ToListAsync();
+            response.Data = await _context.Category.Select(c => _mapper.Map<GetCategoryDto>(c)).ToListAsync();
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// DELETE: api/Categories/5
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetCategoryDto>>> DeleteCategory(Guid id)
-        //{
-        //    ServiceResponse<IEnumerable<GetCategoryDto>> response = new ServiceResponse<IEnumerable<GetCategoryDto>>();
+        // DELETE: api/Categories/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetCategoryDto>>> DeleteCategory(Guid id)
+        {
+            ServiceResponse<IEnumerable<GetCategoryDto>> response = new ServiceResponse<IEnumerable<GetCategoryDto>>();
 
-        //    try
-        //    {
-        //        Category category = await _context.Category.FirstOrDefaultAsync(c => c.IdCategory.ToString().ToUpper() == id.ToString().ToUpper());
+            try
+            {
+                Category category = await _context.Category.FirstOrDefaultAsync(c => c.IdCategory.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //        if (category != null)
-        //        {
-        //            _context.Category.Remove(category);
-        //            await _context.SaveChangesAsync();
+                if (category != null)
+                {
+                    _context.Category.Remove(category);
+                    await _context.SaveChangesAsync();
 
-        //            response.Data = _context.Category.Select(c => _mapper.Map<GetCategoryDto>(c)).ToList();
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "CATEGORY NOT FOUND";
+                    response.Data = _context.Category.Select(c => _mapper.Map<GetCategoryDto>(c)).ToList();
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "CATEGORY NOT FOUND";
 
-        //            return NotFound(response);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
+                    return NotFound(response);
+                }
+            }
+            catch (Exception ex)
+            {
 
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
+                response.Success = false;
+                response.Message = ex.Message;
+            }
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //private bool CategoryExist(Guid id)
-        //{
-        //    return _context.Category.Any(e => e.IdCategory == id);
-        //}
+        private bool CategoryExist(Guid id)
+        {
+            return _context.Category.Any(e => e.IdCategory == id);
+        }
     }
-}
+} 

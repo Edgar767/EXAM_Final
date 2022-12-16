@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EXAM.Data;
 using EXAM.Models;
+using EXAM.DTOs.QuestionAnswer;
+using EXAM.DTOs.Category;
+using AutoMapper;
+//using Azure;
 
 namespace EXAM.Controllers
 {
@@ -14,150 +18,150 @@ namespace EXAM.Controllers
     [ApiController]
     public class QuestionAnswersController : ControllerBase
     {
-        //private readonly DataContext _context;
-        //private readonly IMapper _mapper;
+        private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        //public QuestionAnswersController(DataContext context, IMapper mapper)
-        //{
-        //    _context = context;
-        //    _mapper = mapper;
-        //}
+        public QuestionAnswersController(DataContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
 
-        //// GET: api/QuestionAnswers
-        //[HttpGet]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionAnswerDto>>>> GetQuestionAnswer()
-        //{
-        //    var response = new ServiceResponse<IEnumerable<GetQuestionAnswerDto>>();
+        // GET: api/QuestionAnswers
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionAnswerDto>>>> GetQuestionAnswer()
+        {
+            var response = new ServiceResponse<IEnumerable<GetQuestionAnswerDto>>();
 
-        //    var questionA = await _context.QuestionAnswer.ToListAsync();
+            var questionA = await _context.QuestionAnswer.ToListAsync();
 
-        //    response.Data = questionA.Select(c => _mapper.Map<GetQuestionAnswerDto>(c)).ToList();
+            response.Data = questionA.Select(c => _mapper.Map<GetQuestionAnswerDto>(c)).ToList();
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// GET: api/QuestionAnswers/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetQuestionAnswerDto>>> GetQuestionAnswer(Guid id)
-        //{
-        //    var response = new ServiceResponse<GetQuestionAnswerDto>();
-        //    var questionAns = await _context.QuestionAnswer.FirstOrDefaultAsync(c => c.IdQuestionAnswer.ToString().ToUpper() == id.ToString().ToUpper());
+        // GET: api/QuestionAnswers/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetQuestionAnswerDto>>> GetQuestionAnswer(Guid id)
+        {
+            var response = new ServiceResponse<GetQuestionAnswerDto>();
+            var questionAns = await _context.QuestionAnswer.FirstOrDefaultAsync(c => c.IdQuestionAnswer.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //    if (questionAns != null)
-        //    {
-        //        response.Data = _mapper.Map<GetQuestionAnswerDto>(questionAns);
-        //    }
-        //    else
-        //    {
-        //        response.Success = false;
-        //        response.Message = "QUESTION ANSWER NOT FOUND";
+            if (questionAns != null)
+            {
+                response.Data = _mapper.Map<GetQuestionAnswerDto>(questionAns);
+            }
+            else
+            {
+                response.Success = false;
+                response.Message = "QUESTION ANSWER NOT FOUND";
 
-        //        return NotFound(response);
-        //    }
+                return NotFound(response);
+            }
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// PUT: api/QuestionAnswers/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetQuestionAnswerDto>>> PutCategory(UpdateQuestionAnswerDto questionAnswer, Guid id)
-        //{
-   
-        //    ServiceResponse<GetQuestionAnswerDto> response = new ServiceResponse<GetQuestionAnswerDto>();
-        //    try
-        //    {
-        //        var questionAns = await _context.QuestionAnswer
-        //            .Include(q => q.Question)
-        //                .ThenInclude(s => s.Survey)
-        //                    .ThenInclude(c => c.Category)
-        //            .FirstOrDefaultAsync(qa => qa.IdQuestionAnswer.ToString().ToUpper() == id.ToString().ToUpper());
+        // PUT: api/QuestionAnswers/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetQuestionAnswerDto>>> PutCategory(UpdateQuestionAnswerDto questionAnswer, Guid id)
+        {
 
-        //        if (QuestionAnswerExists(id))
-        //        {
-        //            _mapper.Map(questionAnswer, questionAns);
+            ServiceResponse<GetQuestionAnswerDto> response = new ServiceResponse<GetQuestionAnswerDto>();
+            try
+            {
+                var questionAns = await _context.QuestionAnswer
+                    .Include(q => q.Question)
+                        .ThenInclude(s => s.Survey)
+                            .ThenInclude(c => c.Category)
+                    .FirstOrDefaultAsync(qa => qa.IdQuestionAnswer.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //            await _context.SaveChangesAsync();
+                if (QuestionAnswerExists(id))
+                {
+                    _mapper.Map(questionAnswer, questionAns);
 
-        //            response.Data = _mapper.Map<GetQuestionAnswerDto>(questionAns);
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "QUESTION ANSWER NOT FOUND";
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
+                    await _context.SaveChangesAsync();
 
-        //    if (response.Data == null)
-        //    {
-        //        return NotFound(response);
-        //    }
+                    response.Data = _mapper.Map<GetQuestionAnswerDto>(questionAns);
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "QUESTION ANSWER NOT FOUND";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
 
-        //    return Ok(response);
+            if (response.Data == null)
+            {
+                return NotFound(response);
+            }
 
-        //}
+            return Ok(response);
 
-        //// POST: api/QuestionAnswers
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionAnswerDto>>>> PostQuestionAnswer(AddQuestionAnswerDto questionAnswer)
-        //{
-        //    var response = new ServiceResponse<IEnumerable<GetQuestionAnswerDto>>();
+        }
 
-        //    QuestionAnswer questionAn = _mapper.Map <QuestionAnswer>(questionAnswer);
+        // POST: api/QuestionAnswers
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionAnswerDto>>>> PostQuestionAnswer(AddQuestionAnswerDto questionAnswer)
+        {
+            var response = new ServiceResponse<IEnumerable<GetQuestionAnswerDto>>();
 
-        //    _context.QuestionAnswer.Add(questionAn);
+            QuestionAnswer questionAn = _mapper.Map<QuestionAnswer>(questionAnswer);
 
-        //    await _context.SaveChangesAsync();
+            _context.QuestionAnswer.Add(questionAn);
 
-        //    response.Data = await _context.QuestionAnswer.Select(c => _mapper.Map<GetQuestionAnswerDto>(c)).ToListAsync();
+            await _context.SaveChangesAsync();
 
-        //    return Ok(response);
-        //}
+            response.Data = await _context.QuestionAnswer.Select(c => _mapper.Map<GetQuestionAnswerDto>(c)).ToListAsync();
 
-        //// DELETE: api/QuestionAnswers/5
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionAnswerDto>>>> DeleteQuestionAnswer(Guid id)
-        //{
-        //    ServiceResponse<IEnumerable<GetQuestionAnswerDto>> response = new ServiceResponse<IEnumerable<GetQuestionAnswerDto>>();
+            return Ok(response);
+        }
 
-        //    try
-        //    {
-        //        QuestionAnswer questionAnswer = await _context.QuestionAnswer.FirstOrDefaultAsync(c => c.IdQuestionAnswer.ToString().ToUpper() == id.ToString().ToUpper());
+        // DELETE: api/QuestionAnswers/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionAnswerDto>>>> DeleteQuestionAnswer(Guid id)
+        {
+            ServiceResponse<IEnumerable<GetQuestionAnswerDto>> response = new ServiceResponse<IEnumerable<GetQuestionAnswerDto>>();
 
-        //        if (questionAnswer != null)
-        //        {
-        //            _context.QuestionAnswer.Remove(questionAnswer);
-        //            await _context.SaveChangesAsync();
+            try
+            {
+                QuestionAnswer questionAnswer = await _context.QuestionAnswer.FirstOrDefaultAsync(c => c.IdQuestionAnswer.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //            response.Data = _context.QuestionAnswer.Select(c => _mapper.Map<GetQuestionAnswerDto>(c)).ToList();
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "QUESTION ANSWER NOT FOUND";
+                if (questionAnswer != null)
+                {
+                    _context.QuestionAnswer.Remove(questionAnswer);
+                    await _context.SaveChangesAsync();
 
-        //            return NotFound(response);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
+                    response.Data = _context.QuestionAnswer.Select(c => _mapper.Map<GetQuestionAnswerDto>(c)).ToList();
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "QUESTION ANSWER NOT FOUND";
 
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
+                    return NotFound(response);
+                }
+            }
+            catch (Exception ex)
+            {
 
-        //    return response;
-        //}
+                response.Success = false;
+                response.Message = ex.Message;
+            }
 
-        //private bool QuestionAnswerExists(Guid id)
-        //{
-        //    return _context.QuestionAnswer.Any(e => e.IdQuestionAnswer == id);
-        //}
+            return response;
+        }
+
+        private bool QuestionAnswerExists(Guid id)
+        {
+            return _context.QuestionAnswer.Any(e => e.IdQuestionAnswer == id);
+        }
     }
 }

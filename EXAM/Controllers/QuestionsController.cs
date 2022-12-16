@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using EXAM.Data;
+using EXAM.DTOs.Question;
 using EXAM.Models;
+using AutoMapper;
 
 
 namespace EXAMNTTDATA.Controllers
@@ -16,144 +18,144 @@ namespace EXAMNTTDATA.Controllers
     [ApiController]
     public class QuestionsController : ControllerBase
     {
-        //private readonly DataContext _context;
-        //private readonly IMapper _mapper;
+        private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        //public QuestionsController(DataContext context, IMapper mapper)
-        //{
-        //    _context = context;
-        //    _mapper = mapper;
-        //}
+        public QuestionsController(DataContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
 
-        //// GET: api/Questions
-        //[HttpGet]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionDto>>>> GetQuestion()
-        //{
-        //    var response = new ServiceResponse<IEnumerable<GetQuestionDto>>();
+        // GET: api/Questions
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionDto>>>> GetQuestion()
+        {
+            var response = new ServiceResponse<IEnumerable<GetQuestionDto>>();
 
-        //    var question = await _context.Question.ToListAsync();
+            var question = await _context.Question.ToListAsync();
 
-        //    response.Data = question.Select(c => _mapper.Map<GetQuestionDto>(c)).ToList();
+            response.Data = question.Select(c => _mapper.Map<GetQuestionDto>(c)).ToList();
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// GET: api/Questions/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetQuestionDto>>> GetQuestion(Guid id)
-        //{
-        //    var response = new ServiceResponse<GetQuestionDto>();
-        //    var question = await _context.Question.FirstOrDefaultAsync(c => c.IdQuestion.ToString().ToUpper() == id.ToString().ToUpper());
+        // GET: api/Questions/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetQuestionDto>>> GetQuestion(Guid id)
+        {
+            var response = new ServiceResponse<GetQuestionDto>();
+            var question = await _context.Question.FirstOrDefaultAsync(c => c.IdQuestion.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //    if (question != null)
-        //    {
-        //        response.Data = _mapper.Map<GetQuestionDto>(question);
-        //    }
-        //    else
-        //    {
-        //        response.Success = false;
-        //        response.Message = "QUESTION NOT FOUND";
+            if (question != null)
+            {
+                response.Data = _mapper.Map<GetQuestionDto>(question);
+            }
+            else
+            {
+                response.Success = false;
+                response.Message = "QUESTION NOT FOUND";
 
-        //        return NotFound(response);
-        //    }
+                return NotFound(response);
+            }
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// PUT: api/Questions/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetQuestionDto>>> PutQuestion(UpdateQuestionDto question, Guid id)
-        //{
-        //    ServiceResponse<GetQuestionDto> response = new ServiceResponse<GetQuestionDto>();
-        //    try
-        //    {
-        //        var quest = await _context.Question.FindAsync(id);
+        // PUT: api/Questions/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetQuestionDto>>> PutQuestion(UpdateQuestionDto question, Guid id)
+        {
+            ServiceResponse<GetQuestionDto> response = new ServiceResponse<GetQuestionDto>();
+            try
+            {
+                var quest = await _context.Question.FindAsync(id);
 
-        //        if (QuestionExists(id))
-        //        {
-        //            _mapper.Map(question, quest);
+                if (QuestionExists(id))
+                {
+                    _mapper.Map(question, quest);
 
-        //            await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
 
-        //            response.Data = _mapper.Map<GetQuestionDto>(quest);
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "Question not found";
-        //        }
-        //    }
-        //    catch (DbUpdateException ex)
-        //    {
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
+                    response.Data = _mapper.Map<GetQuestionDto>(quest);
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "Question not found";
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
 
-        //    if (response.Data == null)
-        //    {
-        //        return NotFound(response);
-        //    }
+            if (response.Data == null)
+            {
+                return NotFound(response);
+            }
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //// POST: api/Questions
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost, Authorize(Roles = "admin")]
-        //public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionDto>>>> PostQuestion(AddQuestionDto question)
-        //{
-        //    var serviceResponse = new ServiceResponse<IEnumerable<GetQuestionDto>>();
+        // POST: api/Questions
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost, Authorize(Roles = "admin")]
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetQuestionDto>>>> PostQuestion(AddQuestionDto question)
+        {
+            var serviceResponse = new ServiceResponse<IEnumerable<GetQuestionDto>>();
 
-        //    Question quest = _mapper.Map<Question>(question);
+            Question quest = _mapper.Map<Question>(question);
 
-        //    _context.Question.Add(quest);
+            _context.Question.Add(quest);
 
-        //    await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-        //    serviceResponse.Data = await _context.Question.Select(c => _mapper.Map<GetQuestionDto>(c)).ToListAsync();
+            serviceResponse.Data = await _context.Question.Select(c => _mapper.Map<GetQuestionDto>(c)).ToListAsync();
 
-        //    return Ok(serviceResponse);
-        //}
+            return Ok(serviceResponse);
+        }
 
-        //// DELETE: api/Questions/5
-        //[HttpDelete ("{id}"), Authorize(Roles = "admin")]
-        //public async Task<ActionResult<ServiceResponse<GetQuestionDto>>> DeleteQuestion(Guid id)
-        //{
-        //    ServiceResponse<IEnumerable<GetQuestionDto>> response = new ServiceResponse<IEnumerable<GetQuestionDto>>();
+        // DELETE: api/Questions/5
+        [HttpDelete("{id}"), Authorize(Roles = "admin")]
+        public async Task<ActionResult<ServiceResponse<GetQuestionDto>>> DeleteQuestion(Guid id)
+        {
+            ServiceResponse<IEnumerable<GetQuestionDto>> response = new ServiceResponse<IEnumerable<GetQuestionDto>>();
 
-        //    try
-        //    {
-        //        Question quest = await _context.Question.FirstOrDefaultAsync(c => c.IdQuestion.ToString().ToUpper() == id.ToString().ToUpper());
+            try
+            {
+                Question quest = await _context.Question.FirstOrDefaultAsync(c => c.IdQuestion.ToString().ToUpper() == id.ToString().ToUpper());
 
-        //        if (quest != null)
-        //        {
-        //            _context.Question.Remove(quest);
-        //            await _context.SaveChangesAsync();
+                if (quest != null)
+                {
+                    _context.Question.Remove(quest);
+                    await _context.SaveChangesAsync();
 
-        //            response.Data = _context.Question.Select(c => _mapper.Map<GetQuestionDto>(c)).ToList();
-        //        }
-        //        else
-        //        {
-        //            response.Success = false;
-        //            response.Message = "QUESTION NOT FOUND";
+                    response.Data = _context.Question.Select(c => _mapper.Map<GetQuestionDto>(c)).ToList();
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "QUESTION NOT FOUND";
 
-        //            return NotFound(response);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
+                    return NotFound(response);
+                }
+            }
+            catch (Exception ex)
+            {
 
-        //        response.Success = false;
-        //        response.Message = ex.Message;
-        //    }
+                response.Success = false;
+                response.Message = ex.Message;
+            }
 
-        //    return Ok(response);
-        //}
+            return Ok(response);
+        }
 
-        //private bool QuestionExists(Guid id)
-        //{
-        //    return _context.Question.Any(e => e.IdQuestion == id);
-        //}
+        private bool QuestionExists(Guid id)
+        {
+            return _context.Question.Any(e => e.IdQuestion == id);
+        }
     }
 }
